@@ -91,6 +91,7 @@
     cursor: pointer;
   }
   #result { display:none; }
+  #successMessage { margin:16px 0 0; font-size:14px; color:#5f7891; }
   .small {
     color:#5f7891;
     font-size:14px;
@@ -141,6 +142,7 @@
   <h1 id="resultTitle">잘했어요! 🎉</h1>
   <p id="resultText"></p>
   <button id="restartBtn" type="button">다시 도전</button>
+  <p id="successMessage" hidden>모험 성공 이미지를 캡처해서 솔솔바람에 보내주세요</p>
 </div>
 
 <div id="controls"><label for="speedSelect">진행 속도</label><select id="speedSelect"><option value="0.7">느리게</option><option value="1" selected>보통</option><option value="1.3">빠르게</option></select><button id="pauseBtn" type="button">일시정지</button></div>
@@ -364,6 +366,7 @@
     running=false;
     cancelAnimationFrame(animationId);
     resultPanel.style.display="block";
+    document.getElementById('successMessage').hidden = !success;
     if(success) {
       resultTitle.textContent="모험 성공! 🎉";
       resultText.innerHTML="끝까지 정말 잘했어요!<br>솔솔바람이 함께 응원했어요 💙";
