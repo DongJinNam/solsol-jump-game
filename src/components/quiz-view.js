@@ -22,7 +22,7 @@ export function createQuizView(document) {
       choices.children[0].focus();
     },
     showHint(hint, index) {
-      feedback.textContent = `괜찮아요! ${hint} 다른 답을 골라보세요.`;
+      feedback.textContent = `오답으로 5점 감점됐어요. 괜찮아요! ${hint} 다른 답을 골라보세요.`;
       choices.children[index].disabled = true;
       Array.from(choices.children).find(button => !button.disabled).focus();
     },

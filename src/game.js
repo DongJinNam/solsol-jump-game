@@ -41,7 +41,8 @@ const quizContinue = document.getElementById('quizContinue');
 const pauseBtn = document.getElementById('pauseBtn');
 const quizView = createQuizView(document);
 const gameView = createGameView(document);
-let hearts=3, invincible=0, starPoints=0, quizPoints=0, collected=0, combo=0;
+let hearts=3, invincible=0, quizPenalty=0, collected=0, combo=0;
+let wrongAnswers = new Set();
 let quizIndex=0, quizActive=false, quizSolved=false, paused=false, popups=[];
 let lastTime=0, accumulator=0;
 let W=0, H=0, ground=0;
@@ -80,7 +81,8 @@ function buildLevel() {
 }
 
 function resetGame() {
-  hearts=3; invincible=0; starPoints=0; quizPoints=0; collected=0; combo=0;
+  hearts=3; invincible=0; quizPenalty=0; collected=0; combo=0;
+  wrongAnswers.clear();
   quizIndex=0; quizActive=false; quizSolved=false; paused=false; popups=[];
   quizPanel.style.display='none'; pauseBtn.textContent='일시정지';
   lastTime=0; accumulator=0;
@@ -152,17 +154,15 @@ function update() {
   }
 
   for (const s of stars) {
-    if (s.taken) continue;
+    if (s.taken || s.missed) continue;
     const sx = s.x-camera;
-    if(sx < player.x-25 && !s.missed) { s.missed=true; combo=0; }
+    if(sx < player.x-s.r-8) { s.missed=true; combo=0; continue; }
     const cx = Math.max(player.x,Math.min(sx,player.x+player.w));
     const cy = Math.max(player.y,Math.min(s.y,player.y+player.h));
     if (Math.hypot(cx-sx,cy-s.y) < s.r+8) {
       s.taken=true;
       combo++; collected++;
-      const points=50+Math.min(combo-1,5)*10;
-      starPoints+=points;
-      popups.push({x:sx,y:s.y-22,text:`+${points}${combo>1?' · '+combo+' 콤보!':''}`,life:60});
+      popups.push({x:sx,y:s.y-22,text:'별 획득! ⭐',life:60});
       burst(sx,s.y,"#ffe66b");
     }
   }
@@ -182,30 +182,39 @@ function update() {
 }
 
 function updateHud() {
-  score=Math.floor(camera/12)+starPoints+quizPoints;
+  const missed = stars.filter(s=>!s.taken && s.missed).length;
+  score=Math.round(Math.max(0,100-(stars.length ? missed*100/stars.length : 0)-quizPenalty)*10)/10;
   gameView.update({ hearts, collected, combo, camera, levelEnd: LEVEL_END, score });
 }
 
 function finish(success) {
+  stars.forEach(s=>{if(!s.taken) s.missed=true;});
   updateHud();
   running=false;
   cancelAnimationFrame(animationId);
-  gameView.finish(success, { score, camera, starPoints, quizPoints, collected, quizIndex, nickname });
+  const missed = stars.filter(s=>!s.taken).length;
+  const starPenalty = stars.length ? missed*100/stars.length : 0;
+  gameView.finish(success, { score, starPenalty, quizPenalty, collected, missed, quizIndex, nickname });
 }
 
 function openQuiz() {
   quizActive=true; quizSolved=false;
+  wrongAnswers.clear();
   quizView.show(questions[quizIndex], quizIndex, answerQuiz);
   updateHud();
 }
 function answerQuiz(index) {
   if(!quizActive || quizSolved) return;
   const question=questions[quizIndex];
+  if (!Number.isInteger(index) || index<0 || index>=question.a.length || wrongAnswers.has(index)) return;
   if(index!==question.correct) {
+    wrongAnswers.add(index);
+    quizPenalty+=5;
+    updateHud();
     quizView.showHint(question.hint, index);
     return;
   }
-  quizSolved=true; quizPoints+=100; updateHud();
+  quizSolved=true; updateHud();
   quizView.showSuccess(question.hint);
 }
 function resumeQuiz() {
