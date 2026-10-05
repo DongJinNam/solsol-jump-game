@@ -21,7 +21,7 @@ export function createGameView(document) {
       resultPanel.style.display="block";
       document.getElementById('successMessage').hidden = !success;
       if(success) {
-        resultTitle.textContent=nickname ? `${nickname}야, 고생했어!! 🎉` : "모험 성공! 🎉";
+        resultTitle.textContent=nickname ? `${nickname}, 고생했어!! 🎉` : "모험 성공! 🎉";
         resultText.innerHTML="끝까지 정말 잘했어요!<br>솔솔바람이 함께 응원했어요 💙";
       } else {
         resultTitle.textContent="괜찮아, 다시 해보자! 🌱";
