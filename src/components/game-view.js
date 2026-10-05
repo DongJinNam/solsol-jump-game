@@ -17,11 +17,11 @@ export function createGameView(document) {
       progressEl.style.width = pct + "%";
       percentEl.textContent = pct + "%";
     },
-    finish(success, { score, camera, starPoints, quizPoints, collected, quizIndex }) {
+    finish(success, { score, camera, starPoints, quizPoints, collected, quizIndex, nickname }) {
       resultPanel.style.display="block";
       document.getElementById('successMessage').hidden = !success;
       if(success) {
-        resultTitle.textContent="모험 성공! 🎉";
+        resultTitle.textContent=nickname ? `${nickname}야, 고생했어!! 🎉` : "모험 성공! 🎉";
         resultText.innerHTML="끝까지 정말 잘했어요!<br>솔솔바람이 함께 응원했어요 💙";
       } else {
         resultTitle.textContent="괜찮아, 다시 해보자! 🌱";

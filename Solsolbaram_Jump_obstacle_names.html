@@ -15,7 +15,15 @@
   <div id="percent">0%</div>
 </div>
 
-<div id="start" class="panel">
+<form id="namePanel" class="panel">
+  <h1><label for="nickname">내 이름(별명)을 적어주세요</label></h1>
+  <p>솔솔바람과 함께 모험을 떠나요!</p>
+  <input id="nickname" name="nickname" type="text" maxlength="20" autocomplete="off" aria-describedby="nameError" autofocus>
+  <p id="nameError" role="alert"></p>
+  <button type="submit">다음</button>
+</form>
+
+<div id="start" class="panel" style="display:none">
   <h1>🌬️ 솔솔바람 점프</h1>
   <p>
     <b>게임 방법</b><br>

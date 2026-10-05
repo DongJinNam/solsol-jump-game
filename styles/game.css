@@ -1,4 +1,8 @@
 * { box-sizing: border-box; }
+  #nickname { width:100%; padding:12px; border:2px solid #78d8ed; border-radius:12px; font:inherit; font-size:20px; text-align:center; }
+  #nameError { color:#ac304d; margin:10px 0; }
+  #resultTitle { overflow-wrap:anywhere; }
+  input:focus-visible { outline:3px solid #ffcc55; outline-offset:3px; }
   html, body {
     margin: 0;
     width: 100%;

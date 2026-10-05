@@ -18,6 +18,8 @@ function game(){
    .join('\n')+'\nglobalThis.run=(code)=>eval(code);';
  vm.runInNewContext(code,sandbox);return sandbox.run;
 }
+test('name is required and appears safely in the finish title',()=>{const run=game();run("document.getElementById('nickname').value='   '; submitName()");assert.equal(run('running'),false);assert.notEqual(run("document.getElementById('nameError').textContent"),'');run("document.getElementById('nickname').value=' 슈야 '; submitName(); startGame(); finish(true)");assert.equal(run("document.getElementById('resultTitle').textContent"),'슈야야, 고생했어!! 🎉');run('startGame(); finish(true)');assert.equal(run("document.getElementById('resultTitle').textContent"),'슈야야, 고생했어!! 🎉')});
+
 test('collected star points persist on subsequent frames',()=>{const run=game();run('resetGame(); running=true; obstacles=[]; stars=[{x:player.x+player.w/2+speed,y:player.y+player.h/2,r:13,taken:false}]');run('update()');assert.ok(run('score')>=50);run('update()');assert.ok(run('score')>=50)});
 test('wrong answer permits retry; correct answer awards once and resumes',()=>{const run=game();run('startGame(); openQuiz()');assert.equal(run('quizActive'),true);run('answerQuiz(0)');assert.equal(run('quizActive'),true);assert.equal(run('quizPoints'),0);run('answerQuiz(1)');assert.equal(run('quizPoints'),100);run('answerQuiz(1)');assert.equal(run('quizPoints'),100);run('resumeQuiz()');assert.equal(run('quizActive'),false)});
 test('collision consumes one heart and grants temporary protection',()=>{const run=game();run('resetGame(); running=true; obstacles=[{x:player.x+speed,y:player.y,w:74,h:56,style:"capsule"}]; stars=[]');run('update()');assert.equal(run('hearts'),2);run('update()');assert.equal(run('hearts'),2);assert.equal(run('running'),true)});

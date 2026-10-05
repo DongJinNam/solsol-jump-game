@@ -12,6 +12,24 @@ const startPanel = document.getElementById("start");
 const resultPanel = document.getElementById("result");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
+let nickname = '';
+
+function submitName(event) {
+  event?.preventDefault();
+  const input = document.getElementById('nickname');
+  const value = input.value.trim().slice(0, 20);
+  if (!value) {
+    document.getElementById('nameError').textContent = '이름(별명)을 입력해주세요.';
+    input.focus();
+    return;
+  }
+  nickname = value;
+  document.getElementById('nameError').textContent = '';
+  document.getElementById('namePanel').style.display = 'none';
+  startPanel.style.display = 'block';
+  startBtn.focus();
+}
+document.getElementById('namePanel').addEventListener('submit', submitName);
 
 const solsolImg = new Image();
 solsolImg.src = new URL("../assets/solsol.png", import.meta.url).href;
@@ -172,7 +190,7 @@ function finish(success) {
   updateHud();
   running=false;
   cancelAnimationFrame(animationId);
-  gameView.finish(success, { score, camera, starPoints, quizPoints, collected, quizIndex });
+  gameView.finish(success, { score, camera, starPoints, quizPoints, collected, quizIndex, nickname });
 }
 
 function openQuiz() {
