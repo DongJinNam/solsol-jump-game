@@ -2,15 +2,15 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const vm=require('node:vm');
 const fs=require('node:fs');
-function game(){
+function game(random=()=>0.999){
  const elements=new Map();
  const ctx=new Proxy({}, {get:(_,k)=>k==='measureText'?()=>({width:80}):k==='createLinearGradient'?()=>({addColorStop(){}}):()=>{},set:()=>true});
  const element=()=>({style:{},value:'1',children:[],textContent:'',disabled:false,addEventListener(){},focus(){},blur(){},appendChild(x){this.children.push(x)},replaceChildren(){this.children=[]},getContext:()=>ctx});
  const document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id)},createElement:element,addEventListener(){},hidden:false};
- const sandbox={document,window:{innerWidth:1000,innerHeight:700,devicePixelRatio:1,addEventListener(){}},Image:class {},requestAnimationFrame:()=>1,cancelAnimationFrame(){},performance:{now:()=>0},console};
+ const sandbox={Math:Object.assign(Object.create(Math),{random}),document,window:{innerWidth:1000,innerHeight:700,devicePixelRatio:1,addEventListener(){}},Image:class {},requestAnimationFrame:()=>1,cancelAnimationFrame(){},performance:{now:()=>0},console};
  // Load production modules into one isolated VM for deterministic simulation.
  // Imports/exports are removed only in this test harness; production uses native ESM.
- const files=['src/config.js','src/level.js','src/collision.js',
+ const files=['src/config.js','src/quiz-order.js','src/level.js','src/collision.js',
    'src/components/renderer.js','src/components/game-view.js','src/components/quiz-view.js','src/game.js'];
  const code=files.map(file=>fs.readFileSync(file,'utf8')
    .replace(/^import .*;$/gm,'').replace(/^export /gm,'')
@@ -34,3 +34,51 @@ test('each supplied quiz accepts its answer and displays its explanation',()=>{c
 test('perfect finish is 100; missed stars and wrong answers deduct proportionally',()=>{const r=game();r('resetGame(); stars.forEach(s=>s.taken=true); collected=42; finish(true)');assert.equal(r('score'),100);r('stars[0].taken=false;collected=41;finish(true)');assert.equal(r('score'),97.6);r('quizPenalty=5;finish(true)');assert.equal(r('score'),92.6);r('stars.forEach(s=>s.taken=false);collected=0;finish(true)');assert.equal(r('score'),0)});
 test('missed star reduces live score once; a collected star is never penalized',()=>{const r=game();r('resetGame();running=true;obstacles=[];stars[0].x=-100;update()');assert.equal(r('score'),97.6);r('update()');assert.equal(r('score'),97.6);r('stars[1].taken=true;stars[1].x=-100;update()');assert.equal(r('score'),97.6)});
 test('each distinct wrong choice costs five, duplicate clicks and solved answers do not',()=>{const r=game();r('startGame();openQuiz();answerQuiz(0);answerQuiz(0)');assert.equal(r('score'),95);r('answerQuiz(1)');assert.equal(r('score'),90);r('answerQuiz(2);answerQuiz(0)');assert.equal(r('score'),90);r('startGame()');assert.equal(r('score'),100);assert.equal(r('quizPenalty'),0)});
+
+test('shuffling preserves all questions, choices and correct answer content without mutating source',()=>{
+ const r=game();
+ const before=r('JSON.stringify(questions)');
+ const shuffled=JSON.parse(r('JSON.stringify(createQuizOrder(questions,()=>0))'));
+ const source=JSON.parse(before);
+ assert.equal(r('JSON.stringify(questions)'),before);
+ assert.equal(shuffled.length,3);
+ assert.notDeepEqual(shuffled.map(q=>q.q),source.map(q=>q.q));
+ assert.equal(new Set(shuffled.map(q=>q.q)).size,3);
+ for(const question of shuffled){
+  const original=source.find(q=>q.q===question.q);
+  assert.equal(question.a[question.correct],original.a[original.correct]);
+  assert.deepEqual([...question.a].sort(),[...original.a].sort());
+  assert.equal(question.hint,original.hint);
+  assert.notDeepEqual(question.a,original.a);
+ }
+});
+
+test('randomized quiz UI judges displayed choices and keeps their order through retry',()=>{
+ const r=game(()=>0); r('startGame()');
+ for(let i=0;i<3;i++){
+  r('openQuiz()');
+  const original=JSON.parse(r('JSON.stringify(questions.find(q=>q.q===quizOrder[quizIndex].q))'));
+  const choices=JSON.parse(r('JSON.stringify(quizChoices.children.map(b=>b.textContent.slice(2)))'));
+  assert.notDeepEqual(choices,original.a);
+  const correct=choices.indexOf(original.a[original.correct]);
+  r(`answerQuiz(${(correct+1)%3})`);
+  assert.equal(r('quizSolved'),false);
+  assert.deepEqual(JSON.parse(r('JSON.stringify(quizChoices.children.map(b=>b.textContent.slice(2)))')),choices);
+  r(`answerQuiz(${correct})`);
+  assert.equal(r('quizSolved'),true);
+  assert.ok(r("document.getElementById('quizFeedback').textContent").includes(original.hint));
+  r('resumeQuiz()');
+ }
+ assert.equal(r('quizPenalty'),15);
+});
+
+test('restart generates a fresh quiz order and retains the chosen speed',()=>{
+ let value=0; const r=game(()=>value);
+ r("startGame(); speedSelect.value='1'");
+ const firstOrder=r('JSON.stringify(quizOrder)');
+ value=0.999; r('startGame()');
+ assert.notEqual(r('JSON.stringify(quizOrder)'),firstOrder);
+ assert.equal(r('speedSelect.value'),'1');
+ assert.equal(r('quizIndex'),0);
+ assert.equal(r('quizPenalty'),0);
+});
