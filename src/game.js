@@ -206,7 +206,7 @@ function answerQuiz(index) {
     return;
   }
   quizSolved=true; quizPoints+=100; updateHud();
-  quizView.showSuccess();
+  quizView.showSuccess(question.hint);
 }
 function resumeQuiz() {
   if(!quizSolved) return;
