@@ -1,4 +1,5 @@
 import { LEVEL_END, questions } from './config.js';
+import { createQuizOrder } from './quiz-order.js';
 import { createLevel } from './level.js';
 import { obstacleHit } from './collision.js';
 import { drawScene } from './components/renderer.js';
@@ -43,6 +44,7 @@ const quizView = createQuizView(document);
 const gameView = createGameView(document);
 let hearts=3, invincible=0, quizPenalty=0, collected=0, combo=0;
 let wrongAnswers = new Set();
+let quizOrder = [];
 let quizIndex=0, quizActive=false, quizSolved=false, paused=false, popups=[];
 let lastTime=0, accumulator=0;
 let W=0, H=0, ground=0;
@@ -83,6 +85,7 @@ function buildLevel() {
 function resetGame() {
   hearts=3; invincible=0; quizPenalty=0; collected=0; combo=0;
   wrongAnswers.clear();
+  quizOrder = createQuizOrder(questions);
   quizIndex=0; quizActive=false; quizSolved=false; paused=false; popups=[];
   quizPanel.style.display='none'; pauseBtn.textContent='일시정지';
   lastTime=0; accumulator=0;
@@ -124,7 +127,7 @@ function update() {
   speed = (3.2 + Math.min(1.2,camera/3900)) * Number(speedSelect.value);
   camera += speed;
   invincible=Math.max(0,invincible-1);
-  if (quizIndex<questions.length && camera>=LEVEL_END*(quizIndex+1)/4) {
+  if (quizIndex<quizOrder.length && camera>=LEVEL_END*(quizIndex+1)/4) {
     openQuiz(); return;
   }
 
@@ -200,12 +203,12 @@ function finish(success) {
 function openQuiz() {
   quizActive=true; quizSolved=false;
   wrongAnswers.clear();
-  quizView.show(questions[quizIndex], quizIndex, answerQuiz);
+  quizView.show(quizOrder[quizIndex], quizIndex, answerQuiz);
   updateHud();
 }
 function answerQuiz(index) {
   if(!quizActive || quizSolved) return;
-  const question=questions[quizIndex];
+  const question=quizOrder[quizIndex];
   if (!Number.isInteger(index) || index<0 || index>=question.a.length || wrongAnswers.has(index)) return;
   if(index!==question.correct) {
     wrongAnswers.add(index);
