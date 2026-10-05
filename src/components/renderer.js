@@ -76,6 +76,7 @@ export function drawScene(ctx, solsolImg, state) {
 
     // 장애물 이름
     const label=o.label;
+    if (!label) return;
     let fontSize = label.length > 6 ? 12 : 13;
     ctx.font=`800 ${fontSize}px Arial, "Apple SD Gothic Neo", sans-serif`;
     const tw = ctx.measureText(label).width;

@@ -15,19 +15,19 @@ export function createQuizView(document) {
       question.a.forEach((text, answerIndex) => {
         const button = document.createElement('button');
         button.type = 'button';
-        button.textContent = text;
+        button.textContent = `${['①','②','③'][answerIndex]} ${text}`;
         button.addEventListener('click', () => onAnswer(answerIndex));
         choices.appendChild(button);
       });
       choices.children[0].focus();
     },
     showHint(hint, index) {
-      feedback.textContent = `괜찮아요! ${hint} 다른 답을 골라보세요.`;
+      feedback.textContent = `오답으로 5점 감점됐어요. 괜찮아요! ${hint} 다른 답을 골라보세요.`;
       choices.children[index].disabled = true;
       Array.from(choices.children).find(button => !button.disabled).focus();
     },
-    showSuccess() {
-      feedback.textContent = '정답이에요! +100점 · 몽글이가 길을 열어줬어요!';
+    showSuccess(explanation) {
+      feedback.textContent = `정답이에요! ${explanation}`;
       Array.from(choices.children).forEach(button => { button.disabled = true; });
       next.style.display = 'inline-block';
       next.focus();

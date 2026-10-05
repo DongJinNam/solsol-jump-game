@@ -10,20 +10,29 @@
 <canvas id="game"></canvas>
 
 <div id="hud">
-  <div id="score">⭐ 0</div><div id="hearts" aria-label="남은 하트 3개">♥♥♥</div><div id="collectCount">별 0 · 콤보 0</div>
+  <div id="score">100점 / 100</div><div id="hearts" aria-label="남은 하트 3개">♥♥♥</div><div id="collectCount">모은 별 0개</div>
   <div id="progressWrap"><div id="progress"></div></div>
   <div id="percent">0%</div>
 </div>
 
-<div id="start" class="panel">
+<form id="namePanel" class="panel">
+  <h1><label for="nickname">내 이름(별명)을 적어주세요</label></h1>
+  <p>솔솔바람과 함께 모험을 떠나요!</p>
+  <input id="nickname" name="nickname" type="text" maxlength="20" autocomplete="off" aria-describedby="nameError" autofocus>
+  <p id="nameError" role="alert"></p>
+  <button type="submit">다음</button>
+</form>
+
+<div id="start" class="panel" style="display:none">
   <h1>🌬️ 솔솔바람 점프</h1>
   <p>
     <b>게임 방법</b><br>
     화면을 누르거나 스페이스바 / ↑ 키를 눌러 점프해요.<br>
-    <b>공중에서 한 번 더 누르면 이중점프!</b><br><br>
+    <b>공중에서 한 번 더 누르면 이중점프!</b><br>
+    높이 쌓인 2단 약병은 이중점프로 넘어요.<br><br>
     알약 · 주사기 · 약병 · 반창고 장애물을 피해<br>
     별을 모으며 100%까지 달려가면 성공이에요.<br>
-    <span class="small">별은 50점! 연속 획득 보너스도 있어요.<br>하트는 3개, 괴물 퀴즈는 정답까지 다시 도전!<br>아래에서 달리기 속도를 언제든 바꿀 수 있어요.</span>
+    <span class="small">별을 모두 모으고 퀴즈를 한 번에 맞혀 완주하면 100점!<br>놓친 별은 전체 별 수에 비례해 감점돼요.<br>퀴즈는 오답을 고를 때마다 5점 감점 후 다시 도전해요.<br>하트는 3개! 아래에서 중간 / 빠름 속도를 선택해요.</span>
   </p>
   <button id="startBtn" type="button">게임 시작</button>
 </div>
@@ -35,7 +44,7 @@
   <p id="successMessage" hidden>모험 성공 이미지를 캡처해서 솔솔바람에 보내주세요</p>
 </div>
 
-<div id="controls"><label for="speedSelect">진행 속도</label><select id="speedSelect"><option value="0.7">느리게</option><option value="1" selected>보통</option><option value="1.3">빠르게</option></select><button id="pauseBtn" type="button">일시정지</button></div>
+<div id="controls"><label for="speedSelect">진행 속도</label><select id="speedSelect"><option value="1" selected>중간</option><option value="1.3">빠름</option></select><button id="pauseBtn" type="button">일시정지</button></div>
 <div id="quiz" class="panel" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
 <svg class="monster" viewBox="0 0 100 90" aria-hidden="true"><path d="M22 28L14 7 39 21M64 21L87 7 79 34" fill="#ffd889" stroke="#8c64d9" stroke-width="4"/><rect x="10" y="20" width="80" height="64" rx="30" fill="#b89aff" stroke="#e0d4ff" stroke-width="3"/><ellipse cx="35" cy="46" rx="10" ry="13" fill="white"/><ellipse cx="65" cy="46" rx="10" ry="13" fill="white"/><circle cx="37" cy="48" r="5" fill="#293b68"/><circle cx="63" cy="48" r="5" fill="#293b68"/><path d="M37 66Q50 78 64 65" fill="none" stroke="#493c75" stroke-width="4" stroke-linecap="round"/><circle cx="23" cy="62" r="6" fill="#ffb8d4"/><circle cx="77" cy="62" r="6" fill="#ffb8d4"/></svg>
 <h1 id="quizTitle">별지기 몽글이의 퀴즈</h1><p id="quizQuestion"></p><div id="quizChoices"></div><p id="quizFeedback" role="status" aria-live="polite"></p><button id="quizContinue" type="button">모험 계속하기</button></div>
