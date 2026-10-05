@@ -60,10 +60,13 @@ export function drawScene(ctx, solsolImg, state) {
       ctx.strokeStyle='#fff';ctx.beginPath();ctx.moveTo(o.w/2,o.h-9);ctx.lineTo(o.w/2,o.h);ctx.stroke();
       ctx.strokeStyle='#288eb2';for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(12,16+i*6);ctx.lineTo(20,16+i*6);ctx.stroke();}
     } else if(o.style==='vial') {
-      roundRect(3,10,o.w-6,o.h-11,9);ctx.fill();ctx.stroke();
+      ctx.save();
+      ctx.scale(1,o.h/49);
+      roundRect(3,10,o.w-6,38,9);ctx.fill();ctx.stroke();
       ctx.fillStyle='#78bdc2';roundRect(9,0,o.w-18,12,3);ctx.fill();
       ctx.fillStyle='#fff';roundRect(9,23,o.w-18,16,4);ctx.fill();
       ctx.fillStyle='#42a785';ctx.fillRect(o.w/2-2,25,4,12);ctx.fillRect(o.w/2-6,29,12,4);
+      ctx.restore();
     } else if(o.style==='bandage') {
       roundRect(0,5,o.w,o.h-10,12);ctx.fill();ctx.stroke();
       ctx.fillStyle='#e59a61';roundRect(o.w*.3,9,o.w*.4,o.h-18,4);ctx.fill();

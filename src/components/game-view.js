@@ -21,11 +21,11 @@ export function createGameView(document) {
       resultPanel.style.display="block";
       document.getElementById('successMessage').hidden = !success;
       if(success) {
-        resultTitle.textContent=nickname ? `${nickname}야, 고생했어!! 🎉` : "모험 성공! 🎉";
+        resultTitle.textContent=nickname ? `${nickname}, 고생했어!! 🎉` : "모험 성공! 🎉";
         resultText.innerHTML="끝까지 정말 잘했어요!<br>솔솔바람이 함께 응원했어요 💙";
       } else {
         resultTitle.textContent="괜찮아, 다시 해보자! 🌱";
-        resultText.innerHTML="조금씩 익숙해지면 더 멀리 갈 수 있어요.<br><b>이중점프</b>도 활용해보세요!";
+        resultText.innerHTML="하트를 모두 소진하면 게임을 다시 시작해야 돼요.<br><b>이중점프</b>도 활용해보세요!";
       }
       resultText.innerHTML+=`<br><b>총 ${score}점 / 100점</b><br>별 감점 −${starPenalty.toFixed(1)}점 · 퀴즈 감점 −${quizPenalty}점<br>모은 별 ${collected}개 · 놓친 별 ${missed}개<br>통과한 퀴즈 ${quizIndex}/3`;
       restartBtn.focus();
